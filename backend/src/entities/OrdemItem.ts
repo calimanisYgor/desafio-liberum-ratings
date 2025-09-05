@@ -17,5 +17,5 @@ export class OrderItem {
   quantity!: number;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  price!: number; // Preço no momento da compra
+  price!: number;
 }

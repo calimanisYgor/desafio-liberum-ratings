@@ -11,11 +11,10 @@ import {
 
 const router = Router();
 
-// rotas publicas
 router.get("/", listProductsController);
 router.get("/:id", getProductByIdController);
 
-// rotas de admin
+
 router.post("/", authMiddleware([UserRole.ADMIN]), createProductController);
 router.patch("/:id", authMiddleware([UserRole.ADMIN]), updateProductController);
 router.delete(

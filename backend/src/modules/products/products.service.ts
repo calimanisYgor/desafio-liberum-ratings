@@ -66,7 +66,6 @@ export const updateProduct = async (
 ): Promise<Product> => {
   const product = await getProductById(id);
 
-  // valida se caso o nome for alterado verifica se já está em uso ou não
   if (data.name && data.name !== product.name) {
     const productExists = await productRepository.findOneBy({
       name: data.name,

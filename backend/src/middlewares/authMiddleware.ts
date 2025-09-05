@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { AppError } from '../shared/AppError';
-import { AppDataSource } from '../database/data-source';
-import { User, UserRole } from '../entities/User';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { AppError } from "../shared/AppError";
+import { AppDataSource } from "../database/data-source";
+import { User, UserRole } from "../entities/User";
 
 interface TokenPayload {
   id: string;
@@ -25,10 +25,10 @@ export const authMiddleware = (roles: UserRole[] = []) => {
     const { authorization } = req.headers;
 
     if (!authorization) {
-      throw new AppError('Authorization token not provided', 401);
+      throw new AppError("Authorization token not provided", 401);
     }
 
-    const [, token] = authorization.split(' ');
+    const [, token] = authorization.split(" ");
 
     try {
       const data = jwt.verify(token, process.env.JWT_ACCESS_SECRET!);
@@ -36,20 +36,21 @@ export const authMiddleware = (roles: UserRole[] = []) => {
 
       const userRepository = AppDataSource.getRepository(User);
       const user = await userRepository.findOneBy({ id });
+      console.log(user);
 
       if (!user) {
-        throw new AppError('User not found', 401);
+        throw new AppError("User not found", 401);
       }
 
       req.user = { id, role };
 
       if (roles.length > 0 && !roles.includes(role)) {
-        throw new AppError('Forbidden', 403);
+        throw new AppError("Forbidden", 403);
       }
 
       return next();
     } catch {
-      throw new AppError('Invalid token', 401);
+      throw new AppError("Invalid token", 401);
     }
   };
 };
