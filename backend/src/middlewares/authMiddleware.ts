@@ -36,7 +36,6 @@ export const authMiddleware = (roles: UserRole[] = []) => {
 
       const userRepository = AppDataSource.getRepository(User);
       const user = await userRepository.findOneBy({ id });
-      console.log(user);
 
       if (!user) {
         throw new AppError("User not found", 401);
