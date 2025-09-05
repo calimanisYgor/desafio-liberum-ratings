@@ -36,6 +36,11 @@ export const login = async (credentials: Pick<User, "email" | "password">) => {
     throw new AppError("Invalid credentials", 401);
   }
 
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+  if (!isPasswordCorrect) {
+    throw new AppError("Invalid credentials", 401);
+  }
+
   const accessToken = jwt.sign(
     { id: user.id, role: user.role },
     process.env.JWT_ACCESS_SECRET!,
