@@ -26,3 +26,4 @@ Thumbs.db
 # Misc
 coverage/
 *.log
+.vscode/
