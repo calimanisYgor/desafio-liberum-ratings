@@ -1,110 +1,66 @@
 "use client";
 
-import type { Order } from "@/api/orders";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import type { ColumnDef } from "@tanstack/react-table";
+import type { Order } from "@/api/orders";
 
-interface GetColumnsOptions {
-  userRole: "admin" | "user";
-  onStatusChange: (orderId: string, status: string) => void;
-}
-
-const getStatusVariant = (
-  status: Order["status"]
-): "default" | "secondary" | "destructive" | "outline" => {
-  switch (status) {
-    case "paid":
-      return "default";
-    case "shipped":
-      return "outline";
-    case "cancelled":
-      return "destructive";
-    case "placed":
-    default:
-      return "secondary";
-  }
-};
-
-export const getColumns = ({
-  userRole,
-  onStatusChange,
-}: GetColumnsOptions): ColumnDef<Order>[] => {
-  const columns: ColumnDef<Order>[] = [
-    {
-      accessorKey: "id",
-      header: "ID do Pedido",
-      cell: ({ row }) => (
-        <div className="font-mono text-xs">{row.getValue("id")}</div>
-      ),
+export const columns: ColumnDef<Order>[] = [
+  {
+    accessorKey: "id",
+    header: "ID do Pedido",
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("id")}</div>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("status")}</div>
+    ),
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Criado em",
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("createdAt"));
+      return <div>{date.toLocaleDateString("pt-BR")}</div>;
     },
-
-    ...(userRole === "admin"
-      ? [
-          {
-            accessorKey: "user.name",
-            header: "Cliente",
-            cell: ({ row }) => row.original.user?.name || "N/A",
-          } as ColumnDef<Order>,
-        ]
-      : []),
-    {
-      accessorKey: "createdAt",
-      header: "Data",
-      cell: ({ row }) =>
-        new Date(row.getValue("createdAt")).toLocaleDateString("pt-BR"),
+  },
+  {
+    accessorKey: "items",
+    header: "Items",
+    cell: ({ row }) => {
+      const items = row.getValue("items") as Order["items"];
+      return (
+        <div>
+          {items.map((item) => (
+            <div key={item.id}>
+              {item.product ? item.product.name : "Product not found"} -{" "}
+              {item.quantity} x R${item.price}
+            </div>
+          ))}
+        </div>
+      );
     },
-    {
-      id: "total",
-      header: "Total",
-      cell: ({ row }) => {
-        const total = row.original.items.reduce(
-          (acc, item) => acc + Number(item.price) * item.quantity,
-          0
-        );
-        return new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(total);
-      },
+  },
+  {
+    id: "total",
+    header: "Total",
+    cell: ({ row }) => {
+      const items = row.original.items;
+      const total = items.reduce(
+        (acc, item) => acc + item.quantity * parseFloat(item.price),
+        0
+      );
+      return (
+        <div className="font-medium">
+          {total.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}
+        </div>
+      );
     },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const order = row.original;
-
-        if (userRole === "admin") {
-          return (
-            <Select
-              defaultValue={order.status}
-              onValueChange={(value) => onStatusChange(order.id, value)}
-            >
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Mudar status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="placed">Placed</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="shipped">Shipped</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-          );
-        }
-
-        return (
-          <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
-        );
-      },
-    },
-  ];
-
-  return columns;
-};
+  },
+];

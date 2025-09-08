@@ -7,7 +7,7 @@ import { AppError } from "../../shared/AppError";
 
 type CreateOrderPayload = {
   userId: string;
-  items: { productId: string; quantity: number }[];
+  items: { productId: string; name:string, quantity: number }[];
 };
 
 type ListOrdersPayload = {
@@ -24,7 +24,7 @@ export const createOrder = async (
 
   return AppDataSource.transaction(async (transactionalEntityManager) => {
     const user = await transactionalEntityManager.findOneBy(User, {
-      id: userId,
+      id: userId, // já é string (uuid)
     });
     if (!user) throw new AppError("User not found", 404);
 
@@ -35,7 +35,7 @@ export const createOrder = async (
 
     for (const item of items) {
       const product = await transactionalEntityManager.findOneBy(Product, {
-        id: item.productId,
+        id: item.productId, 
       });
 
       if (!product) {
@@ -50,12 +50,13 @@ export const createOrder = async (
 
       product.stock -= item.quantity;
       await transactionalEntityManager.save(product);
-
+      // @ts-ignore
       const orderItem = transactionalEntityManager.create(OrderItem, {
         product,
         quantity: item.quantity,
         price: product.price,
       });
+
       newOrder.items.push(orderItem);
     }
 
@@ -63,15 +64,24 @@ export const createOrder = async (
   });
 };
 
+
 export const listOrders = async (
-  payload: ListOrdersPayload
-): Promise<Order[]> => {
-  const { user, status } = payload;
+  payload: ListOrdersPayload & { page?: number; limit?: number }
+): Promise<{
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  data: Order[];
+}> => {
+  const { user, status, page = 1, limit = 10 } = payload;
 
   const queryOptions: any = {
     relations: ["user", "items", "items.product"],
     order: { createdAt: "DESC" },
     where: {},
+    skip: (page - 1) * limit,
+    take: limit,
   };
 
   if (user.role === "admin") {
@@ -80,10 +90,22 @@ export const listOrders = async (
     }
   } else {
     queryOptions.where.user = { id: user.id };
+    if (status) {
+      queryOptions.where.status = status;
+    }
   }
 
-  return orderRepository.find(queryOptions);
+  const [orders, total] = await orderRepository.findAndCount(queryOptions);
+
+  return {
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+    data: orders,
+  };
 };
+
 
 export const updateOrderStatus = async (
   orderId: string,
