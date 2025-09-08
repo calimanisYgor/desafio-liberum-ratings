@@ -9,11 +9,10 @@ import orderRoutes from "./modules/orders/orders.routes";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-  })
-);
+app.use(cors({
+  origin: "http://localhost:5173", // front-end
+  credentials: true,               // se você envia cookies ou tokens
+}));
 
 app.use(express.json());
 

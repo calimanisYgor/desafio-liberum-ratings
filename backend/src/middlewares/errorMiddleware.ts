@@ -14,7 +14,7 @@ export const errorMiddleware = (
   next: NextFunction
 ) => {
   let errorPayload: IErrorPayload;
-
+  console.log(error)
   if (error instanceof AppError && error.isOperational) {
     errorPayload = {
       status: "fail",
