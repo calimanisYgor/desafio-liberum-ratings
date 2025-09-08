@@ -2,6 +2,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { ShoppingCart, LogOut } from "lucide-react";
+import { CartSidebar } from "./cartSidebar";
 
 export const Layout = () => {
   const { user, logout } = useAuthStore();
@@ -50,6 +51,7 @@ export const Layout = () => {
             <div className="ml-auto flex-1 sm:flex-initial">
                 <span>Bem-vindo, <strong>{user?.name}!</strong></span>
             </div>
+            <CartSidebar />
             <Button onClick={handleLogout} variant="outline" size="icon">
               <LogOut className="h-5 w-5" />
             </Button>

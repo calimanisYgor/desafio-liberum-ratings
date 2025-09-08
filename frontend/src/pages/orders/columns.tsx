@@ -3,6 +3,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Order } from "@/api/orders";
+import OrderStatusCell from "./OrderStatusCell";
 
 export const columns: ColumnDef<Order>[] = [
   {
@@ -62,5 +63,10 @@ export const columns: ColumnDef<Order>[] = [
         </div>
       );
     },
+  },
+  {
+    id: "actions",
+    header: "Ações",
+    cell: ({ row }) => <OrderStatusCell order={row.original} />,
   },
 ];

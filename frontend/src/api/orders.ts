@@ -45,3 +45,15 @@ export const updateOrderStatus = async ({ orderId, status }: { orderId: string, 
   return data;
 }
 
+export interface CreateOrderPayload {
+  items: {
+    productId: string;
+    quantity: number;
+  }[];
+}
+
+export const createOrder = async (payload: CreateOrderPayload): Promise<Order> => {
+  const { data } = await api.post<Order>("/orders", payload);
+  return data;
+};
+
