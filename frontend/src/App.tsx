@@ -11,8 +11,6 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    // ErrorBoundary: um "colete salva-vidas" para a sua aplicação.
-    // Se algum componente filho quebrar durante a renderização, esta UI de fallback será mostrada.
     <ErrorBoundary
       fallbackRender={({ error, resetErrorBoundary }) => (
         <div
