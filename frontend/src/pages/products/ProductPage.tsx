@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { PlusCircle } from "lucide-react";
 import { columns } from "./columns";
 
+
 export default function ProductListPage() {
   const user = useAuthStore((state) => state.user);
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,7 +49,6 @@ export default function ProductListPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Produtos</h1>
-        
       </div>
 
       <div className="flex items-center justify-between">

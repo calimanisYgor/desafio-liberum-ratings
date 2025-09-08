@@ -22,6 +22,8 @@ export const AppRoutes = () => {
 
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin/products/new" element={<CreateProductFormPage />} />
+        <Route path="/admin/products/edit/:id" element={<CreateProductFormPage />} />
+        <Route path="/admin/products/delete/:id" element={<ProductListPage />} />
       </Route> 
     </Routes>
   );

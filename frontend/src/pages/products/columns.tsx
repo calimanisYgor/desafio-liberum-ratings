@@ -14,6 +14,7 @@ import {
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { Product } from "@/api/products";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Link } from "react-router-dom";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -71,12 +72,12 @@ export const columns: ColumnDef<Product>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Ações</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => console.log("Editar produto", product.id)}
-              >
+              <Link to={`/admin/products/edit/${product.id}`}>
+              <DropdownMenuItem>
                 <Pencil className="mr-2 h-4 w-4" />
                 Editar
               </DropdownMenuItem>
+              </Link>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-red-500 focus:text-red-500">
                 <Trash2 className="mr-2 h-4 w-4" />
