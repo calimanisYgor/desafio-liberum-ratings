@@ -1,14 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = 'http://localhost:3333'; // URL do seu backend
+const API_URL = "http://localhost:3333";
 
 export const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // Importante para o refresh token se usar cookies
+  withCredentials: true,
 });
 
-// Função para obter o accessToken do Zustand (vamos criá-la)
-import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from "../stores/authStore";
 
 api.interceptors.request.use(
   (config) => {
@@ -21,7 +20,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor para o fluxo de refresh token
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -42,9 +40,11 @@ api.interceptors.response.use(
           refreshToken,
         });
         const newAccessToken = data.accessToken;
-        setAccessToken(newAccessToken, refreshToken); // Atualiza o token na loja
-        api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-        originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+        setAccessToken(newAccessToken, refreshToken);
+        api.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${newAccessToken}`;
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
 
         return api(originalRequest);
       } catch (refreshError) {
@@ -55,4 +55,3 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-

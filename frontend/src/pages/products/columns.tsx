@@ -11,10 +11,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import type { Product } from "@/api/products";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
+import { useCartStore } from "@/stores/cartStore";
+import toast from "react-hot-toast";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -50,8 +52,29 @@ export const columns: ColumnDef<Product>[] = [
     },
   },
   {
+    id: "add-to-cart",
+    cell: ({ row }) => {
+      const product = row.original;
+      const addToCart = useCartStore((state) => state.addToCart);
+
+      return (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            addToCart(product);
+            toast.success(`${product.name} adicionado ao carrinho!`);
+          }}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Adicionar ao carrinho
+        </Button>
+      );
+    },
+  },
+  {
     id: "actions",
-    header:'Ações',
+    header: "Ações",
     maxSize: 20,
     cell: ({ row }) => {
       const product = row.original;
@@ -73,10 +96,10 @@ export const columns: ColumnDef<Product>[] = [
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Ações</DropdownMenuLabel>
               <Link to={`/admin/products/edit/${product.id}`}>
-              <DropdownMenuItem>
-                <Pencil className="mr-2 h-4 w-4" />
-                Editar
-              </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Editar
+                </DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-red-500 focus:text-red-500">
