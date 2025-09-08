@@ -17,13 +17,11 @@ import { useForm } from "react-hook-form";
 import { api } from "@/api/axios";
 import toast from "react-hot-toast";
 
-// Schema de validação com Zod
 const loginSchema = z.object({
   email: z.email("Por favor, insira um e-mail válido."),
   password: z.string().min(1, "A senha é obrigatória."),
 });
 
-// Tipagem para os dados do formulário
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm({
@@ -31,7 +29,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login); // Acede à função de login da loja
+  const login = useAuthStore((state) => state.login);
 
   const {
     register,
@@ -41,17 +39,15 @@ export function LoginForm({
     resolver: zodResolver(loginSchema),
   });
 
-  // Função chamada ao submeter o formulário
   const handleLogin = async (data: LoginFormData) => {
     try {
       const response = await api.post("/auth/login", data);
       const { accessToken, refreshToken } = response.data;
 
-      // Chama a função da loja para guardar os tokens e descodificar os dados do utilizador
       login(accessToken, refreshToken);
 
       toast.success("Login bem-sucedido!");
-      navigate("/"); // Redireciona para a página principal
+      navigate("/");
     } catch (error) {
       toast.error("Credenciais inválidas. Tente novamente.");
       console.error("Falha no login:", error);
