@@ -85,9 +85,6 @@ export default function CreateProductFormPage() {
   });
 
   const onSubmit = (data: ProductFormData) => {
-    //@ts-ignore
-    createProductMutation(data);
-
     if (isEditMode && id) {
       // @ts-ignore
       updateProductMutation({ id, productData: data });
