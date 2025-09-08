@@ -42,13 +42,13 @@ export const login = async (credentials: Pick<User, "email" | "password">) => {
   }
 
   const accessToken = jwt.sign(
-    { id: user.id, role: user.role },
+    { id: user.id, role: user.role, name: user.name, email: user.email },
     process.env.JWT_ACCESS_SECRET!,
     { expiresIn: "15min" }
   );
 
   const refreshToken = jwt.sign(
-    { id: user.id, role: user.role },
+    { id: user.id, role: user.role, name: user.name, email: user.email },
     process.env.JWT_REFRESH_SECRET!,
     { expiresIn: "7d" }
   );

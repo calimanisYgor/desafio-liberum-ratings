@@ -1,0 +1,64 @@
+import axios from "axios";
+
+const API_URL = "http://localhost:3333";
+
+export const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+});
+
+import { useAuthStore } from "../stores/authStore";
+
+api.interceptors.request.use(
+  (config) => {
+    const token = useAuthStore.getState().accessToken;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    const { status } = error.response;
+    const { logout, setAccessToken, refreshToken } = useAuthStore.getState();
+
+    if (status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      if (!refreshToken) {
+        logout();
+        return Promise.reject(error);
+      }
+
+      try {
+        const { data } = await axios.post(`${API_URL}/auth/refresh`, {
+          refreshToken,
+        });
+        const newAccessToken = data.accessToken;
+        setAccessToken(newAccessToken, refreshToken);
+        api.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${newAccessToken}`;
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+
+        return api(originalRequest);
+      } catch (refreshError) {
+        logout();
+        return Promise.reject(refreshError);
+      }
+    }
+    if (error.response && error.response.data && error.response.data.message) {
+      return Promise.reject(new Error(error.response.data.message));
+    } else if (error.response && error.response.data && error.response.data.error) {
+      return Promise.reject(new Error(error.response.data.error));
+    } else if (error.message) {
+      return Promise.reject(new Error(error.message));
+    }
+    return Promise.reject(new Error("An unexpected error occurred."));
+  }
+);
