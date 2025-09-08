@@ -52,6 +52,13 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    return Promise.reject(error);
+    if (error.response && error.response.data && error.response.data.message) {
+      return Promise.reject(new Error(error.response.data.message));
+    } else if (error.response && error.response.data && error.response.data.error) {
+      return Promise.reject(new Error(error.response.data.error));
+    } else if (error.message) {
+      return Promise.reject(new Error(error.message));
+    }
+    return Promise.reject(new Error("An unexpected error occurred."));
   }
 );
