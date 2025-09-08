@@ -1,6 +1,8 @@
 "use client";
 
 import { useAuthStore } from "@/stores/authStore";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteProduct } from "@/api/products";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -79,6 +81,18 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => {
       const product = row.original;
       const user = useAuthStore.getState().user;
+      const queryClient = useQueryClient();
+
+      const { mutate: deleteProductMutation, isPending } = useMutation({
+        mutationFn: deleteProduct,
+        onSuccess: () => {
+          toast.success("Produto apagado com sucesso!");
+          queryClient.invalidateQueries({ queryKey: ["products"] });
+        },
+        onError: (error) => {
+          toast.error(`Erro ao apagar produto: ${error.message}`);
+        },
+      });
 
       if (user?.role !== "admin") {
         return null;
@@ -102,7 +116,11 @@ export const columns: ColumnDef<Product>[] = [
                 </DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-500 focus:text-red-500">
+              <DropdownMenuItem
+                className="text-red-500 focus:text-red-500"
+                onClick={() => deleteProductMutation(product.id)}
+                disabled={isPending}
+              >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Apagar
               </DropdownMenuItem>
